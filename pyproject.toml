@@ -1,0 +1,104 @@
+[project]
+name = "noc-copilot"
+version = "0.1.0"
+description = "AI copilot for telecom NOC alarm triage: multi-agent RCA, graph-RAG runbook retrieval, QLoRA fine-tuning, vLLM serving"
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+dependencies = [
+    # core / simulator (Phase 1)
+    "pydantic==2.14.1",
+    "pyyaml==6.0.3",
+    "python-dotenv==1.2.4",
+    "networkx==3.7",
+    "pandas==3.0.6",
+    "numpy==2.5.4",
+    "faker==40.43.0",
+    "openai==3.35.0",
+    # graph DB (Phase 1-2)
+    "neo4j==6.4.1",
+    # api / ui (Phase 3)
+    "fastapi==0.143.3",
+    "uvicorn[standard]==0.54.0",
+    "streamlit==1.66.0",
+    "requests==2.34.2",
+    "mlflow==3.17.1",
+    # dev / test
+    "pytest==9.1.1",
+    "ruff==0.17.1",
+    "mypy==2.4.0",
+]
+
+[project.optional-dependencies]
+# Phase 2: hybrid retrieval
+retrieval = [
+    "chromadb==1.5.9",
+    "rank-bm25==0.2.2",
+    "sentence-transformers==6.1.0",
+    # Listed explicitly (sentence-transformers would otherwise pull it in
+    # transitively) so tool.uv.sources below can redirect it to the CPU
+    # wheel on Linux — uv only applies source overrides to direct deps.
+    "torch==2.14.1",
+]
+# Phase 3: multi-agent orchestration
+agents = [
+    "langgraph==1.2.16",
+]
+# everything (laptop-safe subset only: retrieval + agents)
+# NOT part of this uv lockfile, each isolated in its own env:
+#   - RAGAS (Phase 3 eval): see requirements-eval.txt. Its langchain-openai /
+#     instructor transitive deps pin langchain-core / openai ranges that
+#     conflict with langgraph's langchain-core>=1.4.7 requirement no matter
+#     which openai version is chosen.
+#   - Phase 4 (finetune) / Phase 5 (serving): run on a separate rented GPU
+#     box (see requirements-finetune.txt / requirements-serving.txt); vllm's
+#     pinned transformers/fastapi ranges conflict with the laptop stack.
+dev = [
+    "noc-copilot[retrieval,agents]",
+]
+
+[tool.uv]
+# Scoped to what this project actually runs on (dev laptop + Docker/CI),
+# not the full platform matrix uv resolves by default — that drags in
+# unrelated combos (e.g. s390x + Windows) whose transitive deps (notably
+# ragas's) conflict in ways that have nothing to do with this project.
+environments = [
+    "sys_platform == 'darwin'",
+    "sys_platform == 'linux'",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+# sentence-transformers (retrieval extra) pulls in torch; on Linux that
+# defaults to full CUDA wheels (multi-GB) even though the api/ui Docker
+# images only ever run it on CPU. macOS has no CUDA wheels to begin with,
+# so this only needs to apply on Linux.
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/noc_copilot"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "llm: makes a real call to the configured LLM (skipped automatically if LLM_API_KEY is unset)",
+]

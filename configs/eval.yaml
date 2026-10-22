@@ -1,0 +1,20 @@
+# Phase 3 evaluation configuration.
+
+# limit the number of test-split incidents evaluated (null = all). Useful
+# for a quick smoke run before committing to the full test split.
+sample_size: null
+seed: 42
+
+max_diagnostic_loops: 2
+default_retrieval_mode: hybrid+rerank
+ablation_retrieval_modes: [bm25, dense, hybrid, hybrid+rerank]
+
+# Published paid-tier rate for the model actually used (see .env's
+# LLM_MODEL), fetched from https://ai.google.dev/gemini-api/docs/pricing
+# on 2026-10-19 — NOT what this run actually cost (that's $0 on the free
+# tier); used only to report a hypothetical cost-per-incident figure for
+# the Phase 4/5 API-vs-self-hosted comparison.
+pricing:
+  model: gemini-3.5-flash-lite
+  input_cost_per_1m_usd: 0.30
+  output_cost_per_1m_usd: 2.50

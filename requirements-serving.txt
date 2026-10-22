@@ -1,0 +1,6 @@
+# Phase 5 (vLLM serving) dependencies — install on the rented GPU box:
+#   uv pip install -r requirements-serving.txt
+# Kept separate from pyproject.toml / requirements-finetune.txt: vllm pins
+# its own transformers/fastapi ranges that conflict with the laptop stack
+# and with requirements-finetune.txt if resolved together.
+vllm==0.31.0

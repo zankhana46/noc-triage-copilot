@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv-eval/
+.venv-finetune/
+.venv-serving/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Env / secrets
+.env
+
+# Generated data — bulky and fully regenerable via scripts/01_generate_data.py.
+# data/runbooks/*.md is NOT excluded: small, human-readable, and the clearest
+# concrete illustration of what the simulator actually produces.
+data/topology/*.csv
+data/alarms/*.jsonl
+data/alarms/*.csv
+data/alarms/.cache/
+data/incidents/*.jsonl
+data/finetune/*.jsonl
+data/chroma/
+
+# Results: the small summary *.json files ARE committed — they're the actual
+# evidence every number in README.md traces back to. Only the bulky
+# per-incident raw/intermediate files are excluded (regenerable, not needed
+# to verify the headline numbers).
+results/eval_raw_*.jsonl
+results/ragas_input.jsonl
+
+# Neo4j local volume
+neo4j_data/
+neo4j_logs/
+
+# MLflow local tracking store
+mlruns/
+mlflow.db
+mlartifacts/
+
+# Model artifacts
+*.safetensors
+*.bin
+checkpoints/
+adapters/
+merged_model/
+offload_tmp/
+noc-finetune.zip
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.code-workspace

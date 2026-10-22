@@ -1,0 +1,42 @@
+{
+  "seed": 42,
+  "topology": {
+    "num_nodes": 533,
+    "num_links": 545,
+    "node_type_counts": {
+      "CORE_ROUTER": 3,
+      "AMF": 1,
+      "UPF": 1,
+      "AGG_ROUTER": 6,
+      "PREAGG_ROUTER": 18,
+      "CSR": 72,
+      "GNB": 72,
+      "CELL": 216,
+      "POWER": 72,
+      "SYNC": 72
+    }
+  },
+  "incident_bundles": {
+    "total": 1000,
+    "by_failure_type": {
+      "fiber_cut": 125,
+      "site_power_failure": 125,
+      "router_hardware_fault": 125,
+      "sync_loss": 125,
+      "microwave_degradation": 125,
+      "cell_congestion": 125,
+      "cooling_failure": 125,
+      "core_overload": 125
+    },
+    "by_split": {
+      "train": 700,
+      "dev": 160,
+      "test": 140
+    }
+  },
+  "alarms": {
+    "total": 22201,
+    "noise_count": 8352,
+    "noise_ratio": 0.3762
+  }
+}

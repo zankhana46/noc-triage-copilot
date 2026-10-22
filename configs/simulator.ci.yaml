@@ -1,0 +1,61 @@
+# Tiny topology/incident config for CI (see .github/workflows/ci.yml):
+# fast to generate, runs with MOCK_LLM=1 (no real API calls). Not meant
+# for real evaluation — see configs/simulator.yaml for that.
+
+seed: 42
+
+topology:
+  regions: ["northeast", "southeast"]
+  vendors: ["Northeon", "Vendorix"]
+  num_core_routers: 1
+  num_amf: 1
+  num_upf: 1
+  num_agg_routers: 2
+  preagg_per_agg: 1          # -> 2 pre-aggregation routers
+  sites_per_preagg: 2        # -> 4 sites -> ~35 total nodes
+  cells_per_site: 2
+  agg_redundancy_fraction: 0.5
+  preagg_redundancy_fraction: 0.5
+  link_types: ["fiber", "microwave"]
+  microwave_fraction: 0.25
+
+failures:
+  jitter_seconds: [1, 10]
+  types:
+    - fiber_cut
+    - site_power_failure
+    - router_hardware_fault
+    - sync_loss
+    - microwave_degradation
+    - cell_congestion
+    - cooling_failure
+    - core_overload
+
+noise:
+  background_fraction: 0.5
+  flap_probability: 0.1
+  flap_repeats: [2, 3]
+  duplicate_probability: 0.1
+
+incidents:
+  num_bundles: 24
+  window_minutes: 30
+  overlap_fraction: 0.1
+  splits:
+    train: 0.7
+    dev: 0.15
+    test: 0.15
+
+runbooks:
+  vendor_variant_count: 1
+  llm_paraphrase_alarms: true  # exercises the paraphrase code path via the mocked client
+
+# Same paths as configs/simulator.yaml (not a separate data/ci/ subtree):
+# tests reference these standard locations directly, and CI always runs
+# in a fresh, isolated checkout with no real local data to protect.
+paths:
+  topology_dir: data/topology
+  alarms_dir: data/alarms
+  runbooks_dir: data/runbooks
+  incidents_dir: data/incidents
+  results_dir: results

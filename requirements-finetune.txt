@@ -1,0 +1,19 @@
+# Phase 4 (QLoRA fine-tuning) dependencies — install on the rented GPU box:
+#   uv pip install -r requirements-finetune.txt
+# Kept separate from pyproject.toml because vllm (requirements-serving.txt)
+# pins transformers/fastapi ranges that conflict with these when resolved
+# in one lockfile. These two phases never run in the same environment.
+torch==2.14.1
+# pinned alongside torch: transformers' internal import graph touches
+# torchvision unconditionally (even for text-only models), so a
+# version mismatch with whatever torchvision a host already has
+# installed (e.g. Colab's preinstalled one) breaks all model imports
+torchvision==0.29.1
+transformers==5.20.1
+peft==0.21.2
+trl==1.16.0
+bitsandbytes==0.50.2
+accelerate==1.15.0
+datasets==5.1.0
+mlflow==3.17.1
+pyyaml==6.0.3

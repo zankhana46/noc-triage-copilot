@@ -1,0 +1,30 @@
+{
+  "hybrid+rerank": {
+    "n_rows": 10,
+    "faithfulness": 0.37786796536796535,
+    "answer_relevancy": 0.5776267000741757,
+    "context_precision": 0.6920833332917813,
+    "context_recall": 0.5361477411477411
+  },
+  "bm25": {
+    "n_rows": 10,
+    "faithfulness": 0.10333333333333332,
+    "answer_relevancy": 0.4609832828087074,
+    "context_precision": 0.8583333332834167,
+    "context_recall": 0.5396453546453547
+  },
+  "dense": {
+    "n_rows": 10,
+    "faithfulness": 0.0667857142857143,
+    "answer_relevancy": 0.4325734714113946,
+    "context_precision": 0.6949999999698333,
+    "context_recall": 0.6833999497234792
+  },
+  "hybrid": {
+    "n_rows": 10,
+    "faithfulness": 0.030952380952380953,
+    "answer_relevancy": 0.48170943774101865,
+    "context_precision": 0.670555555509537,
+    "context_recall": 0.5784615384615385
+  }
+}

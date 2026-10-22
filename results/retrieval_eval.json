@@ -1,0 +1,34 @@
+{
+  "bm25": {
+    "mode": "bm25",
+    "n_queries": 140,
+    "mrr": 0.819,
+    "recall@1": 0.7214,
+    "recall@3": 0.9143,
+    "recall@5": 0.9429
+  },
+  "dense": {
+    "mode": "dense",
+    "n_queries": 140,
+    "mrr": 0.8429,
+    "recall@1": 0.75,
+    "recall@3": 0.9571,
+    "recall@5": 0.9857
+  },
+  "hybrid": {
+    "mode": "hybrid",
+    "n_queries": 140,
+    "mrr": 0.8862,
+    "recall@1": 0.7929,
+    "recall@3": 0.9714,
+    "recall@5": 1.0
+  },
+  "hybrid+rerank": {
+    "mode": "hybrid+rerank",
+    "n_queries": 140,
+    "mrr": 0.8723,
+    "recall@1": 0.8,
+    "recall@3": 0.9357,
+    "recall@5": 0.9786
+  }
+}

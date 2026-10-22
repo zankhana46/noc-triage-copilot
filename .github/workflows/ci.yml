@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      neo4j:
+        image: neo4j:2026.09.0-community
+        env:
+          NEO4J_AUTH: neo4j/ci-test-password
+        ports:
+          - 7687:7687
+          - 7474:7474
+        options: >-
+          --health-cmd "wget -qO- http://localhost:7474 || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NEO4J_URI: bolt://localhost:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ci-test-password
+      # No GPU, no real API calls in CI (see SPEC.md Phase 6): the data
+      # generation scripts call the LLM client only for runbook drafting
+      # and alarm paraphrasing, both mocked deterministically — see
+      # src/noc_copilot/llm/client.py's MOCK_LLM branch.
+      MOCK_LLM: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
+        with:
+          version: "0.13.5"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Lint (ruff)
+        run: uv run --extra dev ruff check src/ scripts/ tests/
+
+      - name: Type check (mypy)
+        run: uv run --extra dev mypy src/noc_copilot
+
+      - name: Generate tiny dataset (mocked LLM, no GPU)
+        run: uv run --extra dev scripts/01_generate_data.py --config configs/simulator.ci.yaml
+
+      - name: Load tiny topology into Neo4j
+        run: uv run --extra dev scripts/01_load_graph.py
+
+      - name: Run tests
+        run: uv run --extra dev pytest tests/ -v

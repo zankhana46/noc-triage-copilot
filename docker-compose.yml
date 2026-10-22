@@ -1,0 +1,59 @@
+services:
+  neo4j:
+    image: neo4j:2026.09.0-community
+    container_name: noc-copilot-neo4j
+    ports:
+      - "7474:7474" # browser
+      - "7687:7687" # bolt
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-change-me-please}
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: noc-copilot-api
+    command: uvicorn noc_copilot.api.app:app --app-dir src --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # service name, not localhost, for container-to-container networking
+      NEO4J_URI: bolt://neo4j:7687
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      # no wget/curl in python:3.12-slim; python3 (via the venv) is always there
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ui:
+    build: .
+    container_name: noc-copilot-ui
+    command: streamlit run src/noc_copilot/ui/app.py --server.address 0.0.0.0 --server.port 8501
+    ports:
+      - "8501:8501"
+    environment:
+      TRIAGE_API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+
+# vLLM (Phase 5) is intentionally not a service here: point LLM_BASE_URL /
+# LLM_MODEL in .env at an external vLLM server instead (see .env.example).
+
+volumes:
+  neo4j_data:
+  neo4j_logs:

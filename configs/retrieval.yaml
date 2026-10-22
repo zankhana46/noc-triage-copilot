@@ -1,0 +1,17 @@
+# Phase 2 hybrid retrieval configuration.
+
+embedding_model: sentence-transformers/all-MiniLM-L6-v2
+cross_encoder_model: cross-encoder/ms-marco-MiniLM-L-6-v2
+
+chroma_persist_dir: data/chroma
+chroma_collection: runbook_chunks
+
+rrf_k: 60          # reciprocal rank fusion constant
+top_k: 5           # final number of chunks returned
+rerank_pool_size: 20  # candidates (post-fusion) passed to the cross-encoder
+
+modes:
+  - bm25
+  - dense
+  - hybrid
+  - hybrid+rerank

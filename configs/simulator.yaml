@@ -1,0 +1,67 @@
+# Phase 1 synthetic data simulator configuration.
+# All randomness is seeded from `seed` so generation is reproducible.
+
+seed: 42
+
+topology:
+  regions: ["northeast", "southeast", "midwest", "west"]
+  vendors: ["Northeon", "Vendorix", "Arcadia Networks"]
+  num_core_routers: 3
+  num_amf: 1
+  num_upf: 1
+  num_agg_routers: 6
+  preagg_per_agg: 3          # -> 18 pre-aggregation routers
+  sites_per_preagg: 4        # -> 72 sites -> ~530 total nodes
+  cells_per_site: 3
+  # fraction of agg routers dual-homed to 2 core routers, and of preagg
+  # routers dual-homed to 2 agg routers (redundant paths)
+  agg_redundancy_fraction: 0.4
+  preagg_redundancy_fraction: 0.3
+  link_types: ["fiber", "microwave"]
+  microwave_fraction: 0.25    # fraction of preagg->csr links that are microwave
+
+failures:
+  # each incident's propagation uses timing jitter drawn from this range (seconds)
+  jitter_seconds: [1, 45]
+  types:
+    - fiber_cut
+    - site_power_failure
+    - router_hardware_fault
+    - sync_loss
+    - microwave_degradation
+    - cell_congestion
+    - cooling_failure
+    - core_overload
+
+noise:
+  # background (non-incident) alarms added per incident window, as a
+  # fraction of that incident's true alarm count
+  background_fraction: 0.6
+  # probability an alarm in the window is a flapping duplicate
+  flap_probability: 0.15
+  flap_repeats: [2, 5]
+  duplicate_probability: 0.1
+
+incidents:
+  num_bundles: 1000
+  window_minutes: 30
+  # fraction of bundles allowed to overlap in time with another bundle
+  overlap_fraction: 0.15
+  splits:
+    train: 0.7
+    dev: 0.15
+    test: 0.15
+
+runbooks:
+  vendor_variant_count: 3   # vendor-specific variants on top of the 8 base runbooks
+  # set to true to use the LLM to paraphrase alarm message templates for
+  # variety (cached under data/alarms/.cache/); false uses deterministic
+  # templated variety with no LLM calls required
+  llm_paraphrase_alarms: true
+
+paths:
+  topology_dir: data/topology
+  alarms_dir: data/alarms
+  runbooks_dir: data/runbooks
+  incidents_dir: data/incidents
+  results_dir: results

@@ -1,0 +1,57 @@
+{
+  "fiber_cut": {
+    "failure_type": "fiber_cut",
+    "vendor": null,
+    "path": "fiber_cut.md"
+  },
+  "site_power_failure": {
+    "failure_type": "site_power_failure",
+    "vendor": null,
+    "path": "site_power_failure.md"
+  },
+  "router_hardware_fault": {
+    "failure_type": "router_hardware_fault",
+    "vendor": null,
+    "path": "router_hardware_fault.md"
+  },
+  "sync_loss": {
+    "failure_type": "sync_loss",
+    "vendor": null,
+    "path": "sync_loss.md"
+  },
+  "microwave_degradation": {
+    "failure_type": "microwave_degradation",
+    "vendor": null,
+    "path": "microwave_degradation.md"
+  },
+  "cell_congestion": {
+    "failure_type": "cell_congestion",
+    "vendor": null,
+    "path": "cell_congestion.md"
+  },
+  "cooling_failure": {
+    "failure_type": "cooling_failure",
+    "vendor": null,
+    "path": "cooling_failure.md"
+  },
+  "core_overload": {
+    "failure_type": "core_overload",
+    "vendor": null,
+    "path": "core_overload.md"
+  },
+  "fiber_cut__northeon": {
+    "failure_type": "fiber_cut",
+    "vendor": "Northeon",
+    "path": "fiber_cut__northeon.md"
+  },
+  "sync_loss__vendorix": {
+    "failure_type": "sync_loss",
+    "vendor": "Vendorix",
+    "path": "sync_loss__vendorix.md"
+  },
+  "router_hardware_fault__arcadia-networks": {
+    "failure_type": "router_hardware_fault",
+    "vendor": "Arcadia Networks",
+    "path": "router_hardware_fault__arcadia-networks.md"
+  }
+}

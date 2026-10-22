@@ -1,0 +1,61 @@
+# Phase 4 QLoRA fine-tuning configuration. Training itself runs on a
+# rented GPU (see scripts/04_finetune.sh); dataset construction runs
+# locally (no GPU needed — see scripts/04_build_finetune_dataset.py).
+
+seed: 42
+
+# Qwen3-8B: newer generation than the spec's original Qwen2.5-7B
+# suggestion, Apache-2.0, ungated. Fine-tuned in non-thinking mode (see
+# enable_thinking below) to keep the structured-JSON output task simple —
+# avoids the hidden-reasoning-token behavior Phase 3 hit with Gemini 3.x.
+base_model: Qwen/Qwen3-8B
+enable_thinking: false
+
+dataset:
+  train_bundles: data/incidents/train.jsonl
+  dev_bundles: data/incidents/dev.jsonl
+  out_dir: data/finetune
+  # cap the dev split used for eval-during-training loss (not the Phase 4
+  # comparison eval, which reuses scripts/03_evaluate.py separately)
+  max_dev_examples: 150
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: nf4
+  # float16, not bfloat16: T4 (Colab free tier, compute capability 7.5)
+  # lacks hardware support for TRL's bf16 matmul kernel path. If you move
+  # to an Ampere+ GPU (A100/L4/RTX 30xx+), bfloat16 is preferable.
+  bnb_4bit_compute_dtype: float16
+  bnb_4bit_use_double_quant: true
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+training:
+  # TRL's assistant_only_loss uses a fused kernel that hardcodes bf16
+  # internally regardless of the trainer's fp16/bf16 setting, which T4
+  # (compute capability 7.5) can't run. Set true on Ampere+ GPUs
+  # (A100/L4/RTX 30xx+) for cleaner assistant-only-token loss masking.
+  assistant_only_loss: false
+  max_seq_length: 2048
+  # 1, not 3: at T4 free-tier speed (~130s/step observed), 3 epochs
+  # (~264 steps, ~9.5h) won't survive a Colab session. 1 epoch (~88
+  # steps, ~3.2h) is a smaller but still legitimate QLoRA fine-tune.
+  num_train_epochs: 1
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-4
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  weight_decay: 0.01
+  logging_steps: 10
+  save_steps: 100
+  eval_steps: 100
+  output_dir: checkpoints/qwen3-8b-noc-triage
+  merged_output_dir: merged_model/qwen3-8b-noc-triage
+
+mlflow:
+  experiment_name: noc-triage-finetune

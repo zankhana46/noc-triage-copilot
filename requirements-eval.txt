@@ -1,0 +1,15 @@
+# RAGAS evaluation (Phase 3) — install in its own isolated venv:
+#   uv venv .venv-eval && uv pip install -r requirements-eval.txt --python .venv-eval
+# Kept out of pyproject.toml: ragas's langchain-openai/instructor transitive
+# deps pin langchain-core/openai ranges that conflict with langgraph's
+# langchain-core>=1.4.7 requirement, regardless of openai version chosen.
+ragas==0.4.3
+datasets==5.1.0
+sentence-transformers==6.1.0  # for AnswerRelevancy's local embedding model
+# ragas 0.4.3 unconditionally imports langchain_community.chat_models.vertexai
+# at module load (ragas/llms/base.py), even though we never use VertexAI.
+# langchain-community >=0.3.18 dropped that module (it moved to the
+# standalone langchain-google-vertexai package as part of langchain-community
+# being sunset). ragas pins no upper bound, so pip/uv picks the latest and
+# breaks. Pin the last version that still has it.
+langchain-community==0.3.17
